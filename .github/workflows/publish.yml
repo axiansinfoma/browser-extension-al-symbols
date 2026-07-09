@@ -1,0 +1,62 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Package only, do not publish to the Marketplace"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Publish to VS Code Marketplace
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile
+        run: npm run compile
+
+      # For release events, make sure the tag matches the version in package.json
+      # so a v0.1.0 tag can never ship a 0.2.0 build (or vice versa).
+      - name: Verify tag matches package.json version
+        if: github.event_name == 'release'
+        run: |
+          pkg_version="$(node -p "require('./package.json').version")"
+          tag="${GITHUB_REF_NAME#v}"
+          echo "package.json: $pkg_version, tag: $tag"
+          if [ "$pkg_version" != "$tag" ]; then
+            echo "::error::Release tag ($tag) does not match package.json version ($pkg_version)."
+            exit 1
+          fi
+
+      - name: Package extension
+        run: npx --yes @vscode/vsce package --out bc-symbols-downloader.vsix
+
+      - name: Publish to Marketplace
+        if: github.event_name == 'release' || github.event.inputs.dry_run != 'true'
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx --yes @vscode/vsce publish --packagePath bc-symbols-downloader.vsix
+
+      - name: Attach VSIX to the release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${GITHUB_REF_NAME}" bc-symbols-downloader.vsix --clobber

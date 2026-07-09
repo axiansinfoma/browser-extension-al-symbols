@@ -1,0 +1,118 @@
+{
+  "name": "bc-symbols-downloader",
+  "displayName": "BC Symbols Downloader",
+  "description": "Download Business Central symbol packages listed in app.json from NuGet feeds (public and private) into .alpackages.",
+  "version": "0.1.0",
+  "publisher": "axians-infoma",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/axiansinfoma/browser-extension-al-symbols.git"
+  },
+  "keywords": [
+    "business central",
+    "al",
+    "nuget",
+    "symbols",
+    "alpackages"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "bcSymbols.downloadSymbols",
+        "title": "BC: Download Symbols from Nuget"
+      },
+      {
+        "command": "bcSymbols.manageCredentials",
+        "title": "BC: Manage NuGet Feed Credentials"
+      },
+      {
+        "command": "bcSymbols.clearCredentials",
+        "title": "BC: Clear NuGet Feed Credentials"
+      }
+    ],
+    "configuration": {
+      "title": "BC Symbols Downloader",
+      "properties": {
+        "bcSymbols.useDefaultFeeds": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Include the public Microsoft (`MSSymbolsV2`) and AppSource (`AppSourceSymbols`) feeds in addition to any feeds configured in `#bcSymbols.feeds#`."
+        },
+        "bcSymbols.feeds": {
+          "type": "array",
+          "default": [],
+          "markdownDescription": "Additional NuGet v3 feeds to search for symbol packages. Feeds are searched in order, after the default public feeds.",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "url"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Display name used in prompts and when storing credentials."
+              },
+              "url": {
+                "type": "string",
+                "description": "The NuGet v3 service index URL (usually ends with /nuget/v3/index.json)."
+              },
+              "authentication": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "pat",
+                  "basic"
+                ],
+                "enumDescriptions": [
+                  "Public feed, no authentication.",
+                  "Azure DevOps style Personal Access Token (sent as HTTP Basic password).",
+                  "HTTP Basic authentication with username and password."
+                ],
+                "default": "none",
+                "description": "How to authenticate against this feed. Credentials are stored in the VS Code Secret Storage, never in settings."
+              }
+            }
+          }
+        },
+        "bcSymbols.targetDirectory": {
+          "type": "string",
+          "default": ".alpackages",
+          "description": "Directory (relative to the app.json folder) where the .app symbol files are written."
+        },
+        "bcSymbols.includeApplicationAndPlatform": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Also download the Microsoft first-party foundational symbols — `Platform` (System), `Application`, `System Application`, `Base Application` and `Business Foundation` — matching the `application` version in app.json, not just the entries under `dependencies`."
+        },
+        "bcSymbols.countryCode": {
+          "type": "string",
+          "default": "w1",
+          "markdownDescription": "Localization used for the country-specific Microsoft symbols (`Application` and `Base Application`). Use `w1` (or leave empty) for the base/W1 packages, or a country code such as `de`, `us`, `gb`. `System Application` and `Business Foundation` are always W1."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.5",
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16"
+  }
+}
