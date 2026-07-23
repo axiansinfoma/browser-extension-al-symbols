@@ -7,6 +7,7 @@ export interface FeedConfig {
   name: string;
   url: string;
   authentication: AuthKind;
+  packageNameSchema?: string;
 }
 
 /** Public feeds shipped by default; toggled by bcSymbols.useDefaultFeeds. */
@@ -38,6 +39,7 @@ export function getConfiguredFeeds(): FeedConfig[] {
       name: f.name,
       url: f.url,
       authentication: (f.authentication as AuthKind) ?? "none",
+      packageNameSchema: typeof f.packageNameSchema === "string" ? f.packageNameSchema : undefined,
     });
   }
   return feeds;

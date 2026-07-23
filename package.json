@@ -2,8 +2,8 @@
   "name": "bc-symbols-downloader",
   "displayName": "BC Symbols Downloader",
   "description": "Download Business Central symbol packages listed in app.json from NuGet feeds (public and private) into .alpackages.",
-  "version": "0.1.0",
-  "publisher": "axians-infoma",
+  "version": "0.1.1",
+  "publisher": "AxiansInfoma",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -79,6 +79,10 @@
                 ],
                 "default": "none",
                 "description": "How to authenticate against this feed. Credentials are stored in the VS Code Secret Storage, never in settings."
+              },
+              "packageNameSchema": {
+                "type": "string",
+                "description": "Optional feed-scoped package naming schema for dependency symbols. Must include placeholders {publisher}, {name}, and {appId}. Example: {publisher}.{name}.symbols.{appId}"
               }
             }
           }

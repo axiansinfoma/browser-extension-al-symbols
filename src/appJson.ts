@@ -21,6 +21,12 @@ export interface PackageSpec {
   label: string;
   /** Lowercased NuGet package id. */
   packageId: string;
+  /** Raw dependency parts used for feed-specific package naming schemas. */
+  schemaParts?: {
+    publisher: string;
+    name: string;
+    appId: string;
+  };
   /** Major version line to stay on. */
   major: number;
   /** Minimum acceptable version. */
@@ -132,6 +138,11 @@ export function buildPackageSpecs(
     specs.push({
       label: `${dep.publisher} / ${dep.name} (${dep.version})`,
       packageId: symbolPackageId(dep.publisher, dep.name, dep.id),
+      schemaParts: {
+        publisher: dep.publisher,
+        name: dep.name,
+        appId: dep.id,
+      },
       major: versionMajor(dep.version),
       min: dep.version,
     });

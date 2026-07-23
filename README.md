@@ -43,10 +43,16 @@ on the feed. Downloaded `(package, version)` pairs are cached in
   {
     "name": "My Company Symbols",
     "url": "https://pkgs.dev.azure.com/<org>/<project>/_packaging/<feed>/nuget/v3/index.json",
-    "authentication": "pat"      // "none" | "pat" | "basic"
+    "authentication": "pat",     // "none" | "pat" | "basic"
+    "packageNameSchema": "{publisher}.{name}.symbols.{appId}"
   }
 ]
 ```
+
+- `packageNameSchema` is optional and scoped to that feed. When set, it must
+  include placeholders `{publisher}`, `{name}`, and `{appId}`. It is applied
+  to dependency packages (`dependencies[]`) only; Microsoft first-party package
+  ids keep their built-in naming.
 
 - `pat` — an Azure DevOps Personal Access Token (sent as the HTTP Basic
   password). Prompted on first use.
