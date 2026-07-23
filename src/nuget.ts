@@ -73,6 +73,35 @@ export function symbolPackageId(publisher: string, name: string, appId: string):
   return `${sanitizeIdPart(publisher)}.${sanitizeIdPart(name)}.symbols.${appId}`.toLowerCase();
 }
 
+export interface PackageSchemaParts {
+  publisher: string;
+  name: string;
+  appId: string;
+}
+
+const REQUIRED_SCHEMA_PLACEHOLDERS = ["{publisher}", "{name}", "{appId}"];
+
+export function hasRequiredPackageSchemaPlaceholders(schema: string): boolean {
+  const lower = schema.toLowerCase();
+  return REQUIRED_SCHEMA_PLACEHOLDERS.every((p) => lower.includes(p.toLowerCase()));
+}
+
+/**
+ * Apply a feed-provided package schema and sanitize resulting id parts.
+ *
+ * Placeholders:
+ *  - {publisher}
+ *  - {name}
+ *  - {appId}
+ */
+export function applyPackageSchema(schema: string, parts: PackageSchemaParts): string {
+  return schema
+    .replace(/\{publisher\}/gi, sanitizeIdPart(parts.publisher))
+    .replace(/\{name\}/gi, sanitizeIdPart(parts.name))
+    .replace(/\{appid\}/gi, sanitizeIdPart(parts.appId))
+    .toLowerCase();
+}
+
 // ---------------------------------------------------------------------------
 // Feed operations (NuGet v3)
 // ---------------------------------------------------------------------------

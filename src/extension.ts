@@ -15,6 +15,8 @@ import {
   setCredentialInteractive,
 } from "./feeds";
 import {
+  applyPackageSchema,
+  hasRequiredPackageSchemaPlaceholders,
   downloadNupkg,
   extractApps,
   Headers,
@@ -27,6 +29,7 @@ interface ResolvedFeed {
   config: FeedConfig;
   flatBase: string;
   headers: Headers;
+  packageNameSchema?: string;
 }
 
 const output = vscode.window.createOutputChannel("BC Symbols");
@@ -152,11 +155,12 @@ async function processSpec(
   cacheDir: string
 ): Promise<string | "cached" | undefined> {
   for (const feed of feeds) {
+    const packageId = packageIdForFeed(spec, feed);
     let versions: string[];
     try {
-      versions = await listVersions(feed.flatBase, spec.packageId, feed.headers);
+      versions = await listVersions(feed.flatBase, packageId, feed.headers);
     } catch (err) {
-      output.appendLine(`  ${spec.packageId}: feed "${feed.config.name}" lookup failed — ${errorMessage(err)}`);
+      output.appendLine(`  ${packageId}: feed "${feed.config.name}" lookup failed — ${errorMessage(err)}`);
       continue;
     }
     const version = pickVersion(versions, spec.major, spec.min);
@@ -164,14 +168,14 @@ async function processSpec(
       continue;
     }
 
-    const marker = path.join(cacheDir, `${spec.packageId}@${version}`);
+    const marker = path.join(cacheDir, `${packageId}@${version}`);
     if (fs.existsSync(marker)) {
       output.appendLine(`  ${spec.label}: already present (${version}) — skipping`);
       return "cached";
     }
 
-    output.appendLine(`  ${spec.label}: downloading ${version} from ${feed.config.name}`);
-    const nupkg = await downloadNupkg(feed.flatBase, spec.packageId, version, feed.headers);
+    output.appendLine(`  ${spec.label}: downloading ${version} from ${feed.config.name} (${packageId})`);
+    const nupkg = await downloadNupkg(feed.flatBase, packageId, version, feed.headers);
     const files = extractApps(nupkg, outDir);
     if (files.length === 0) {
       throw new Error("package contained no .app file");
@@ -194,7 +198,8 @@ async function resolveFeeds(
     try {
       const headers = await resolveAuthHeaders(context.secrets, feed);
       const flatBase = await resolveFlatBase(feed.url, headers);
-      resolved.push({ config: feed, flatBase, headers });
+      const normalizedSchema = normalizePackageSchema(feed.packageNameSchema, feed.name);
+      resolved.push({ config: feed, flatBase, headers, packageNameSchema: normalizedSchema });
       output.appendLine(`Feed OK: ${feed.name} (${feed.authentication})`);
     } catch (err) {
       output.appendLine(`Feed FAILED: ${feed.name} — ${errorMessage(err)}`);
@@ -202,6 +207,26 @@ async function resolveFeeds(
     }
   }
   return resolved;
+}
+
+function normalizePackageSchema(schema: string | undefined, feedName: string): string | undefined {
+  if (!schema) {
+    return undefined;
+  }
+  if (hasRequiredPackageSchemaPlaceholders(schema)) {
+    return schema;
+  }
+  output.appendLine(
+    `Feed "${feedName}": packageNameSchema ignored (must include {publisher}, {name}, and {appId}).`
+  );
+  return undefined;
+}
+
+function packageIdForFeed(spec: PackageSpec, feed: ResolvedFeed): string {
+  if (!feed.packageNameSchema || !spec.schemaParts) {
+    return spec.packageId;
+  }
+  return applyPackageSchema(feed.packageNameSchema, spec.schemaParts);
 }
 
 // ---------------------------------------------------------------------------
