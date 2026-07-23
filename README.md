@@ -19,7 +19,7 @@ additional and private feeds.
 | --- | --- |
 | `application` | `microsoft.application.symbols` |
 | `platform`    | `microsoft.platform.symbols` (tracks the `application` major, since `platform` is a placeholder) |
-| `dependencies[]` | `<publisher>.<name>.symbols.<id>` — publisher/name keep `. _ -` and drop other characters; lowercased |
+| `dependencies[]` | `<publisher>.<name>.symbols.<id>` — publisher/name keep `. _ -` and drop other characters; lowercased. A feed may override this with a [custom name schema](#custom-package-name-schema). |
 
 For each package the highest version on the requested **major** line that is
 `>=` the app.json version is chosen (BC dependency versions are minimums).
@@ -49,11 +49,6 @@ on the feed. Downloaded `(package, version)` pairs are cached in
 ]
 ```
 
-- `packageNameSchema` is optional and scoped to that feed. When set, it must
-  include placeholders `{publisher}`, `{name}`, and `{appId}`. It is applied
-  to dependency packages (`dependencies[]`) only; Microsoft first-party package
-  ids keep their built-in naming.
-
 - `pat` — an Azure DevOps Personal Access Token (sent as the HTTP Basic
   password). Prompted on first use.
 - `basic` — username + password.
@@ -62,6 +57,35 @@ on the feed. Downloaded `(package, version)` pairs are cached in
   first one that has a matching package version wins, so if a private feed
   should take precedence, set `bcSymbols.useDefaultFeeds` to `false` or list it
   first.
+
+### Custom package name schema
+
+Feeds that publish symbols under a different id convention than Microsoft's can
+set an optional, feed-scoped `packageNameSchema`. When present, it replaces the
+default `<publisher>.<name>.symbols.<id>` naming when the extension looks up and
+downloads packages **from that feed**.
+
+```jsonc
+"packageNameSchema": "{publisher}.{name}.symbols.{appId}"
+```
+
+- **Placeholders** are substituted from each `dependencies[]` entry:
+  - `{publisher}` — the dependency's `publisher`
+  - `{name}` — the dependency's `name`
+  - `{appId}` — the dependency's `id` (the app GUID)
+- **All three placeholders are optional**, but a schema must include at least
+  one of `{name}` or `{appId}` so that packages can be told apart (`{publisher}`
+  alone is not enough — dependencies often share a publisher). A schema that
+  satisfies neither is ignored (the feed falls back to the default naming) and a
+  note is written to the **BC Symbols** output channel. Placeholder names are
+  case-insensitive, so `{appId}` and `{appid}` behave the same.
+- The substituted `{publisher}` and `{name}` values are sanitized the same way
+  as the default id (only `. _ -` are kept; other characters are dropped) and
+  the whole resulting id is lowercased. Any literal text you put between
+  placeholders is preserved.
+- The schema applies to dependency packages (`dependencies[]`) only. The
+  Application and Platform first-party packages always keep their built-in
+  `microsoft.*.symbols` naming, regardless of the feed's schema.
 
 ## Develop
 
