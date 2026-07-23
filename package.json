@@ -3,7 +3,7 @@
   "displayName": "BC Symbols Downloader",
   "description": "Download Business Central symbol packages listed in app.json from NuGet feeds (public and private) into .alpackages.",
   "version": "0.1.1",
-  "publisher": "axians-infoma",
+  "publisher": "AxiansInfoma",
   "engines": {
     "vscode": "^1.85.0"
   },

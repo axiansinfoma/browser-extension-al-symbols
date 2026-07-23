@@ -7,7 +7,7 @@ Context for AI coding sessions working on this VS Code extension.
 A VS Code extension that downloads Business Central **symbol packages** (`.app`
 files) from NuGet v3 feeds into a project's `.alpackages` folder, based on the
 `app.json` manifest. It exists so AL developers don't have to manually fetch
-symbols. Marketplace publisher: `axians-infoma`. Repo:
+symbols. Marketplace publisher: `AxiansInfoma`. Repo:
 `github.com/axiansinfoma/browser-extension-al-symbols`.
 
 ## Layout
@@ -73,7 +73,7 @@ the `json` module.
   (minus a leading `v`) matches `package.json` `version`, packages, runs
   `vsce publish`, and attaches the `.vsix` to the release. Requires the
   **`VSCE_PAT`** repo secret (an Azure DevOps PAT with Marketplace → Manage
-  scope for the `axians-infoma` publisher). Also runnable via
+  scope for the `AxiansInfoma` publisher). Also runnable via
   `workflow_dispatch` with a `dry_run` toggle.
 
 **Release flow:** bump `version` in `package.json` → commit → create a GitHub
