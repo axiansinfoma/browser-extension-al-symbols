@@ -79,11 +79,14 @@ export interface PackageSchemaParts {
   appId: string;
 }
 
-const REQUIRED_SCHEMA_PLACEHOLDERS = ["{publisher}", "{name}", "{appId}"];
-
+/**
+ * A schema is only usable if it distinguishes one dependency package from
+ * another, so at least one of {name} or {appId} must be present. {publisher}
+ * on its own is not enough (many dependencies share a publisher).
+ */
 export function hasRequiredPackageSchemaPlaceholders(schema: string): boolean {
   const lower = schema.toLowerCase();
-  return REQUIRED_SCHEMA_PLACEHOLDERS.every((p) => lower.includes(p.toLowerCase()));
+  return lower.includes("{name}") || lower.includes("{appid}");
 }
 
 /**

@@ -2,7 +2,7 @@
   "name": "bc-symbols-downloader",
   "displayName": "BC Symbols Downloader",
   "description": "Download Business Central symbol packages listed in app.json from NuGet feeds (public and private) into .alpackages.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "AxiansInfoma",
   "engines": {
     "vscode": "^1.85.0"
@@ -82,7 +82,7 @@
               },
               "packageNameSchema": {
                 "type": "string",
-                "description": "Optional feed-scoped package naming schema for dependency symbols. Must include placeholders {publisher}, {name}, and {appId}. Example: {publisher}.{name}.symbols.{appId}"
+                "description": "Optional feed-scoped package naming schema for dependency symbols. Supported placeholders: {publisher}, {name}, {appId} — all optional, but at least one of {name} or {appId} must be present. Example: {publisher}.{name}.symbols.{appId}"
               }
             }
           }

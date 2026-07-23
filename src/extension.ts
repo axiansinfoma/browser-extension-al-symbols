@@ -217,7 +217,7 @@ function normalizePackageSchema(schema: string | undefined, feedName: string): s
     return schema;
   }
   output.appendLine(
-    `Feed "${feedName}": packageNameSchema ignored (must include {publisher}, {name}, and {appId}).`
+    `Feed "${feedName}": packageNameSchema ignored (must include at least one of {name} or {appId}).`
   );
   return undefined;
 }
