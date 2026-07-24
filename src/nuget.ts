@@ -73,7 +73,7 @@ export function sanitizeIdPart(s: string): string {
  * Substitute a single placeholder value. With no separator, the value is
  * sanitized as-is (default id behaviour). With a separator, the word-separator
  * characters (space, `.`, `-`, `_`) are first rewritten to that separator, so a
- * feed that publishes e.g. `10001-Stadt_Neu-Ulm` as `10001_stadt_neu_ulm` can be
+ * feed that publishes e.g. `Example-Extension_Test-1` as `example_extension_test_1` can be
  * matched with `{name:_}`.
  */
 export function normalizeIdPart(value: string, separator?: string): string {
