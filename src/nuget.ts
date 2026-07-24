@@ -69,6 +69,20 @@ export function sanitizeIdPart(s: string): string {
   return s.replace(/[^A-Za-z0-9._-]/g, "");
 }
 
+/**
+ * Substitute a single placeholder value. With no separator, the value is
+ * sanitized as-is (default id behaviour). With a separator, the word-separator
+ * characters (space, `.`, `-`, `_`) are first rewritten to that separator, so a
+ * feed that publishes e.g. `10001-Stadt_Neu-Ulm` as `10001_stadt_neu_ulm` can be
+ * matched with `{name:_}`.
+ */
+export function normalizeIdPart(value: string, separator?: string): string {
+  if (separator === undefined) {
+    return sanitizeIdPart(value);
+  }
+  return sanitizeIdPart(value.replace(/[\s._-]/g, separator));
+}
+
 export function symbolPackageId(publisher: string, name: string, appId: string): string {
   return `${sanitizeIdPart(publisher)}.${sanitizeIdPart(name)}.symbols.${appId}`.toLowerCase();
 }
@@ -85,23 +99,28 @@ export interface PackageSchemaParts {
  * on its own is not enough (many dependencies share a publisher).
  */
 export function hasRequiredPackageSchemaPlaceholders(schema: string): boolean {
-  const lower = schema.toLowerCase();
-  return lower.includes("{name}") || lower.includes("{appid}");
+  return /\{(name|appid)(?::[^}]*)?\}/i.test(schema);
 }
 
 /**
  * Apply a feed-provided package schema and sanitize resulting id parts.
  *
- * Placeholders:
- *  - {publisher}
- *  - {name}
- *  - {appId}
+ * Placeholders (case-insensitive), each with an optional `:separator` modifier
+ * that rewrites word-separator characters in the substituted value:
+ *  - {publisher} / {publisher:_}
+ *  - {name}      / {name:_}
+ *  - {appId}     / {appId:_}
  */
 export function applyPackageSchema(schema: string, parts: PackageSchemaParts): string {
+  const values: Record<string, string> = {
+    publisher: parts.publisher,
+    name: parts.name,
+    appid: parts.appId,
+  };
   return schema
-    .replace(/\{publisher\}/gi, sanitizeIdPart(parts.publisher))
-    .replace(/\{name\}/gi, sanitizeIdPart(parts.name))
-    .replace(/\{appid\}/gi, sanitizeIdPart(parts.appId))
+    .replace(/\{(publisher|name|appid)(?::([^}]*))?\}/gi, (_match, key: string, separator?: string) =>
+      normalizeIdPart(values[key.toLowerCase()], separator)
+    )
     .toLowerCase();
 }
 

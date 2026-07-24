@@ -83,6 +83,11 @@ downloads packages **from that feed**.
   as the default id (only `. _ -` are kept; other characters are dropped) and
   the whole resulting id is lowercased. Any literal text you put between
   placeholders is preserved.
+- Each placeholder accepts an optional `:separator` modifier that rewrites the
+  word-separator characters (space, `.`, `-`, `_`) in that value before
+  sanitizing. Use it when a feed normalizes separators differently from the app
+  name — e.g. a dependency named `10001-Stadt_Neu-Ulm` published as
+  `10001_stadt_neu_ulm` is matched with `"packageNameSchema": "{name:_}"`.
 - The schema applies to dependency packages (`dependencies[]`) only. The
   Application and Platform first-party packages always keep their built-in
   `microsoft.*.symbols` naming, regardless of the feed's schema.

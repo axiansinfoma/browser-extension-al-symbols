@@ -2,8 +2,9 @@
   "name": "bc-symbols-downloader",
   "displayName": "BC Symbols Downloader",
   "description": "Download Business Central symbol packages listed in app.json from NuGet feeds (public and private) into .alpackages.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "AxiansInfoma",
+  "icon": "icon.png",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -12,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/axiansinfoma/browser-extension-al-symbols.git"
+    "url": "https://github.com/axiansinfoma/code-extension-al-symbols.git"
   },
   "keywords": [
     "business central",
