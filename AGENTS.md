@@ -8,7 +8,7 @@ A VS Code extension that downloads Business Central **symbol packages** (`.app`
 files) from NuGet v3 feeds into a project's `.alpackages` folder, based on the
 `app.json` manifest. It exists so AL developers don't have to manually fetch
 symbols. Marketplace publisher: `AxiansInfoma`. Repo:
-`github.com/axiansinfoma/browser-extension-al-symbols`.
+`github.com/axiansinfoma/code-extension-al-symbols`.
 
 ## Layout
 
