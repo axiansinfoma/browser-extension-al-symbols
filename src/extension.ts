@@ -165,6 +165,10 @@ async function processSpec(
     }
     const version = pickVersion(versions, spec.major, spec.min);
     if (!version) {
+      output.appendLine(
+        `  ${spec.label}: no match on "${feed.config.name}" for id "${packageId}" ` +
+          `(want major ${spec.major} >= ${spec.min}; feed returned ${versions.length} version(s))`
+      );
       continue;
     }
 
